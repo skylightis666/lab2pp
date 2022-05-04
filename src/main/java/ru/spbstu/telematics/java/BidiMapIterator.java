@@ -3,10 +3,7 @@ package ru.spbstu.telematics.java;
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.MapIterator;
 
-import java.util.ArrayDeque;
-import java.util.Collection;
-import java.util.NoSuchElementException;
-import java.util.Queue;
+import java.util.*;
 
 class BidiMapIterator<K, V> implements MapIterator<K, V> {
     final private Queue<K> keys;
@@ -15,7 +12,12 @@ class BidiMapIterator<K, V> implements MapIterator<K, V> {
 
     public BidiMapIterator(BidiMap<K, V> bmap) {
         bidimap = bmap;
-        keys = new ArrayDeque<K>((Collection<? extends K>) bmap.values());
+        keys = new ArrayDeque<>();
+
+        K[] arrayOfKeys = (K[]) bmap.keySet().toArray();
+        Arrays.sort(arrayOfKeys);
+        keys.addAll(Arrays.asList(arrayOfKeys));
+
         current = null;
     }
 

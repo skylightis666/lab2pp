@@ -2,6 +2,8 @@ package ru.spbstu.telematics.java;
 
 import junit.framework.TestCase;
 import org.apache.commons.collections4.BidiMap;
+import org.apache.commons.collections4.MapIterator;
+import org.apache.commons.collections4.bidimap.TreeBidiMap;
 
 import java.util.*;
 
@@ -32,7 +34,6 @@ public class AppTest
     }
 
     static <K, V> boolean equals(BidiMap<K, V> bm1, BidiMap<K, V> bm2) {
-        //return bm1.entrySet().equals(bm2.entrySet());
         Set<Map.Entry<K, V>> s1 = bm1.entrySet(), s2 = bm2.entrySet();
         for (Map.Entry<K, V> e1 : s1) {
             boolean done = false;
@@ -49,54 +50,67 @@ public class AppTest
 
     public void testGet() {
         assertTrue(
-                fill(new BidirectionalHashMap<Integer, String>(), ints, strs).get(1).equals("1") &&
-                        fill(new BidirectionalHashMap<Integer, String>(), ints, strs).getKey("14") == 14
+                fill(new BidirectionalHashMap<>(), ints, strs).get(1).equals("1") &&
+                        fill(new BidirectionalHashMap<>(), ints, strs).getKey("14") == 14
         );
     }
 
     public void testPut() {
         assertTrue(
-                equals(fill(new BidirectionalHashMap<Integer, String>(), ints, strs),
-                        new BidirectionalHashMap<Integer, String>(new ArrayList<Integer>(Arrays.asList(1, 2, 14, 21, 191)),
-                                new ArrayList<String>(Arrays.asList("1", "2", "14", "21", "191"))))
+                equals(fill(new BidirectionalHashMap<>(), ints, strs),
+                        new BidirectionalHashMap<>(new ArrayList<Integer>(Arrays.asList(1, 2, 14, 21, 191)),
+                                new ArrayList<>(Arrays.asList("1", "2", "14", "21", "191"))))
         );
     }
 
     public void testContains() {
         assertTrue(
-                fill(new BidirectionalHashMap<Integer, String>(), ints, strs).containsKey(1) &&
-                        fill(new BidirectionalHashMap<Integer, String>(), ints, strs).containsValue("2")
+                fill(new BidirectionalHashMap<>(), ints, strs).containsKey(1) &&
+                        fill(new BidirectionalHashMap<>(), ints, strs).containsValue("2")
         );
     }
 
     public void testRemove() {
-        BidiMap<Integer, String> bm = fill(new BidirectionalHashMap<Integer, String>(), ints, strs);
+        BidiMap<Integer, String> bm = fill(new BidirectionalHashMap<>(), ints, strs);
         bm.remove(1);
         bm.remove(2, "2");
         bm.removeValue("14");
         assertTrue(
                 equals(bm,
-                        new BidirectionalHashMap<Integer, String>(new ArrayList<Integer>(Arrays.asList(21, 191)),
-                                new ArrayList<String>(Arrays.asList("21", "191"))))
+                        new BidirectionalHashMap<>(new ArrayList<>(Arrays.asList(21, 191)),
+                                new ArrayList<>(Arrays.asList("21", "191"))))
         );
 
         bm.clear();
         assertTrue(
                 equals(bm,
-                        new BidirectionalHashMap<Integer, String>())
+                        new BidirectionalHashMap<>())
         );
     }
 
     public void testInverse() {
         assertTrue(
-                equals(fill(new BidirectionalHashMap<String, Integer>(), strs, ints),
-                    fill(new BidirectionalHashMap<Integer, String>(), ints, strs).inverseBidiMap())
+                equals(fill(new BidirectionalHashMap<>(), strs, ints),
+                    fill(new BidirectionalHashMap<>(), ints, strs).inverseBidiMap())
         );
     }
 
     public void testSets() {
-        assertEquals(fill(new BidirectionalHashMap<String, Integer>(), strs, ints).values(),
-                fill(new BidirectionalHashMap<String, Integer>(), strs, ints).inverseBidiMap().keySet());
+        assertEquals(fill(new BidirectionalHashMap<>(), strs, ints).values(),
+                fill(new BidirectionalHashMap<>(), strs, ints).inverseBidiMap().keySet());
+    }
+
+    public void testIterator() {
+        BidirectionalHashMap<String, Integer> myMap = (BidirectionalHashMap<String, Integer>) fill(new BidirectionalHashMap<>(), strs, ints);
+        MapIterator<String, Integer> myIterator = myMap.mapIterator();
+        MapIterator<String, Integer> stdIterator = fill(new TreeBidiMap<>(), strs, ints).mapIterator();
+        while (stdIterator.hasNext()) {
+            String myKey = myIterator.next();
+            String stdKey = stdIterator.next();
+            assertEquals(myKey, stdKey);
+            assertEquals(myIterator.getValue(), stdIterator.getValue());
+        }
+
     }
 
     public void testApp()
@@ -107,5 +121,6 @@ public class AppTest
         testRemove();
         testInverse();
         testSets();
+        testIterator();
     }
 }
